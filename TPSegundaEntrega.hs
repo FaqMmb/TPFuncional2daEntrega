@@ -139,11 +139,8 @@ ifnz micro instrucciones = aplicarInstrucciones instrucciones micro
 
 --3.4
 
-depurarPrograma :: Microprocesador -> [Instruccion]
-depurarPrograma micro = depuracion (programa micro) micro
-
-depuracion :: [Instruccion] -> Microprocesador -> [Instruccion]
-depuracion instrucciones micro = filter (esDepurable.(ejecutarInstruccion micro)) instrucciones
+depurarPrograma :: [Instruccion] -> Microprocesador -> [Instruccion]
+depurarPrograma instrucciones micro = filter (esDepurable.(ejecutarInstruccion micro)) instrucciones
 
 esDepurable :: Microprocesador -> Bool
 esDepurable (Microprocesador memoriaVacia 0 0 _ _ _) = False
