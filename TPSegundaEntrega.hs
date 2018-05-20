@@ -109,10 +109,9 @@ modificarAcumuladorA addr unMicroprocesador = unMicroprocesador { acumuladorA = 
 
 --2da entrega
 
-programa1 = [lodv 10, swap, lodv 22, add]  --suma de 10 y 22 
-programa2 = [str 1 2, str 2 0, lod 2, swap, lod 1, divide ] --division de 2 por 0
-programa3 = [swap, nop, lodv 133, lodv 0 , str 1 3, str 2 0, lodv 133, str 1 3 ]
-programa4 = [swap,nop,lodv 133, lodv 0, str 1 3, str 2 0]
+suma10Y22 = [lodv 10, swap, lodv 22, add] 
+division2Por0 = [str 1 2, str 2 0, lod 2, swap, lod 1, divide ] 
+programaADepurar = [swap,nop,lodv 133, lodv 0, str 1 3, str 2 0]
 
 --3.1
 
