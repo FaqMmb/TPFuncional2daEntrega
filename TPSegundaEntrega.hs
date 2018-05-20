@@ -159,6 +159,14 @@ esMemoriaOrdenada :: [Int] -> Bool
 esMemoriaOrdenada [] = True
 esMemoriaOrdenada (primerDato:[]) = True
 esMemoriaOrdenada (primerDato:segundoDato:datos) = segundoDato >= primerDato && esMemoriaOrdenada (segundoDato:datos)
+
+-- 3.6 Punto 6: Memoria Infinita
+
+-- 1.
+--procesadorDeMemoriaInfinita = Microprocesador {memoria = [0..], acumuladorA = 0, acumuladorB = 0, programCounter = 0, mensajeError = "", programa = []}
+-- 2. La memoria de datos muestra en consola su contenido hasta que se llene la memoria.
+-- 3. No muestra True o False ya que esta analizando una lista infinita.
+-- 4. Al utilizar una lista de números infinita, el programa no podrá concluirse ya que nunca llega a terminar de procesar dicha lista.
  
  
 {- PRUEBA EN CONSOLA
