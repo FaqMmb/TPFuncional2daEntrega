@@ -145,13 +145,13 @@ depurarPrograma micro = depuracion (programa micro) micro
 depuracion :: [Instruccion] -> Microprocesador -> [Instruccion]
 depuracion instrucciones micro = filter (esDepurable.(ejecutarInstruccion micro)) instrucciones
 
---esDepurable :: Microprocesador -> Bool
---esDepurable (Microprocesador memoriaVacia 0 0 _ _ _) = False
---esDepurable micro = True
-
 esDepurable :: Microprocesador -> Bool
-esDepurable micro  |  ((memoria micro) == memoriaVacia || (acumuladorA micro) == 0 || (acumuladorB micro) == 0 ) = False
-                   |  otherwise = True
+esDepurable (Microprocesador memoriaVacia 0 0 _ _ _) = False
+esDepurable micro = True
+
+--esDepurable :: Microprocesador -> Bool
+--esDepurable micro  |  ((memoria micro) == memoriaVacia || (acumuladorA micro) == 0 || (acumuladorB micro) == 0 ) = False
+--                   |  otherwise = True
 
 --3.5
 
