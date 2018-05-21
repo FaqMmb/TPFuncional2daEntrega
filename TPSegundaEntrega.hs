@@ -33,14 +33,12 @@ memoriaVacia = replicate 1024 0
 nop :: Microprocesador -> Microprocesador
 nop unMicroprocesador = unMicroprocesador {programCounter = programCounter unMicroprocesador + 1}
 
-ejecutarInstruccion :: Microprocesador -> (Microprocesador -> Microprocesador) -> Microprocesador
-ejecutarInstruccion micro unaInstruccion = (nop.unaInstruccion) micro
+ejecutarYAvanzarPC :: Microprocesador -> (Microprocesador -> Microprocesador) -> Microprocesador
+ejecutarYAvanzarPC micro unaInstruccion = (nop.unaInstruccion) micro
 
 {- PRUEBA EN CONSOLA
-
 *MicroEntrega1> (nop.nop.nop) xt8088
 Microprocesador {memoria = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 3, mensajeError = ""}
-
 -}
 
 -- 3.3
@@ -73,10 +71,8 @@ igualarAcumuladorBaCero :: Microprocesador -> Microprocesador
 igualarAcumuladorBaCero unMicroprocesador = unMicroprocesador {acumuladorB = 0}
 
 {- PRUEBA EN CONSOLA
-
 *MicroEntrega1> (add.(lodv 22).swap.(lodv 10)) xt8088
 Microprocesador {memoria = memoriaVacia, acumuladorA = 32, acumuladorB = 0, programCounter = 4, mensajeError = ""}
-
 -}
 
 
@@ -121,13 +117,11 @@ cargarPrograma :: Microprocesador -> [Instruccion] -> Microprocesador
 --3.2
 
 ejecutarPrograma :: Microprocesador -> Microprocesador
-ejecutarPrograma micro = aplicarInstrucciones (programa micro) micro
+ejecutarPrograma micro = foldl ejecutar micro (programa micro)
 
-aplicarInstrucciones :: [Instruccion] -> Microprocesador -> Microprocesador
-aplicarInstrucciones instrucciones micro = foldl ejecutar micro instrucciones
 
 ejecutar :: Microprocesador -> Instruccion -> Microprocesador
-ejecutar (Microprocesador memoria acumA acumB pc [] programa) instruccion = ejecutarInstruccion (Microprocesador memoria acumA acumB pc [] programa) instruccion
+ejecutar (Microprocesador memoria acumA acumB pc [] programa) instruccion = ejecutarYAvanzarPC (Microprocesador memoria acumA acumB pc [] programa) instruccion
 ejecutar micro _ = micro
 
 --3.3
@@ -139,9 +133,9 @@ ifnz micro instrucciones = aplicarInstrucciones instrucciones micro
 --3.4
 
 depurarPrograma :: [Instruccion] -> Microprocesador -> [Instruccion]
-depurarPrograma instrucciones micro = filter (esDepurable.(ejecutarInstruccion micro)) instrucciones
+depurarPrograma instrucciones micro = filter (hayEstadoErroneo.(ejecutarYAvanzarPC micro)) instrucciones
 
-esDepurable micro = (acumuladorA micro) == 0 && (acumuladorB micro) == 0 && (memoria micro) == memoriaVacia
+hayEstadoErroneo micro = (acumuladorA micro == 0  && (acumuladorB micro) == 0 && (memoria micro) == memoriaVacia
 
 --esDepurable :: Microprocesador -> Bool
 --esDepurable (Microprocesador memoriaVacia 0 0 _ _ _) = False
@@ -160,17 +154,15 @@ esMemoriaOrdenada (primerDato:segundoDato:datos) = segundoDato >= primerDato && 
 -- 3.6 Punto 6: Memoria Infinita
 
 -- 1.
---procesadorDeMemoriaInfinita = Microprocesador {memoria = [0..], acumuladorA = 0, acumuladorB = 0, programCounter = 0, mensajeError = "", programa = []}
+--procesadorDeMemoriaInfinita = Microprocesador {memoria = (repeat 0), acumuladorA = 0, acumuladorB = 0, programCounter = 0, mensajeError = "", programa = []}
 -- 2. La memoria de datos muestra en consola su contenido hasta que se llene la memoria.
 -- 3. No muestra True o False ya que esta analizando una lista infinita.
 -- 4. Al utilizar una lista de números infinita, el programa no podrá concluirse ya que nunca llega a terminar de procesar dicha lista.
  
  
 {- PRUEBA EN CONSOLA
-
 *MicroEntrega1> (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088
 Microprocesador {memoria = [2,0,0,..,0], acumuladorA = 2, acumuladorB = 0, programCounter = 6, mensajeError = "DIVISION BY ZERO"}
-
 -}
 
 
@@ -178,60 +170,39 @@ Microprocesador {memoria = [2,0,0,..,0], acumuladorA = 2, acumuladorB = 0, progr
 {- CASOS DE PRUEBA	
  
 4.1
-
 *MicroEntrega1> (nop.nop.nop) xt8088
 Microprocesador {memoria = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 3, mensajeError = ""}
-
 4.2
-
 *MicroEntrega1> lodv 5 xt8088
 Microprocesador {memoria = memoriaVacia, acumuladorA = 5, acumuladorB = 0, programCounter = 1, mensajeError = ""}
-
 *MicroEntrega1> swap fp20
 Microprocesador {memoria = memoriaVacia, acumuladorA = 24, acumuladorB = 7, programCounter = 1, mensajeError = ""}
-
 *MicroEntrega1> (add.(lodv 22).swap.(lodv 10)) xt8088
 Microprocesador {memoria = [], acumuladorA = 32, acumuladorB = 0, programCounter = 4, mensajeError = ""}
-
 4.3
-
 *MicroEntrega1> str 2 5 at8086
 Microprocesador {memoria = [1,5,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], acumuladorA = 0, acumuladorB = 0, programCounter = 1, mensajeError = ""}
-
 *MicroEntrega1> lod 2 xt8088
 Microprocesador {memoria = [0,0,..,0], acumuladorA = 0, acumuladorB = 0, programCounter = 1, mensajeError = ""}
-
 *MicroEntrega1> (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088
 Microprocesador {memoria = [2,0,0,..,0], acumuladorA = 2, acumuladorB = 0, programCounter = 6, mensajeError = "DIVISION BY ZERO"}
-
 *MicroEntrega1> (divide.(lod 1).swap.(lod 2).(str 2 4).(str 1 12)) xt8088
 Microprocesador {memoria = [12,4,0,..,0], acumuladorA = 3, acumuladorB = 0, programCounter = 6, mensajeError = ""}
-
 -2da entrega 
-
 4.2 
 *MicroEntrega2> ejecutarPrograma (cargarPrograma xt8088 programa1)
 Microprocesador {memoria = [0,..], acumuladorA = 32, acumuladorB = 0, programCounter = 4, mensajeError = "", programa = [<una función>,<una función>,<una función>,<una función>]}
-
 *MicroEntrega2> ejecutarPrograma (cargarPrograma xt8088 programa2)
 Microprocesador {memoria = [2,0,0,0,0,0,0,0,0,0,0,0,..], acumuladorA = 2, acumuladorB = 0, programCounter = 6, mensajeError = "DIVISION BY ZERO", programa = [<una función>,<una función>,<una función>,<una función>,<una función>,<una función>]}
-
 4.3
-
 *MicroEntrega2> ifnz fp20 [lodv 3, swap]
 Microprocesador {memoria = [0], acumuladorA = 24, acumuladorB = 3, programCounter = 2, mensajeError = "", programa = []}
-
 *MicroEntrega2> ifnz xt8088 [lodv 3, swap]
 Microprocesador {memoria = [0,..], acumuladorA = 0, acumuladorB = 0, programCounter = 0, mensajeError = "", programa = []}
-
 4.4
-
 4.5
-
 *MicroEntrega2> tieneMemoriaOrdenada at8086
 True
-
 *MicroEntrega2> tieneMemoriaOrdenada microDesorden
 False
-
 -}
