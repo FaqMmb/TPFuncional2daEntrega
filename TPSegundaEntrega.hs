@@ -137,10 +137,6 @@ depurarPrograma instrucciones micro = filter (hayEstadoErroneo.(ejecutarYAvanzar
 
 hayEstadoErroneo micro = (acumuladorA micro == 0  && (acumuladorB micro) == 0 && (memoria micro) == memoriaVacia
 
---esDepurable :: Microprocesador -> Bool
---esDepurable (Microprocesador memoriaVacia 0 0 _ _ _) = False
---esDepurable micro = True
-
 --3.5
 
 tieneMemoriaOrdenada :: Microprocesador -> Bool
